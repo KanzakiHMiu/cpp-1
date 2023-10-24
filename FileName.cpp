@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS 1
+﻿#define _CRT_SECURE_NO_WARNINGS 1
 #include <iostream>
 #include <ctime>
 #include <cstring>
@@ -23,55 +23,62 @@ class account {
 public:
     account(string carid_, string name_, string id_)
         :carid(carid_), name(name_), id(id_) {
-        count++;
-    }
+            account::accountCount[name]++;
+        }
     void save(int);
     void takeOut(int);
     void showBalance() {
         cout << balance << endl;
     }
-    void showCount() {
-        cout << count << endl;
-    }
-    void showPersonal() {
+
+    static void showAllBalance() {
         for (const auto& pair : account::balances) {
             cout << "Total balance for " << pair.first << ": " << pair.second << endl;
         }
     }
+
+    static void showAccountCount() {
+        for (const auto& pair : account::accountCount) {
+            cout << "Total accounts for " << pair.first << ": " << pair.second << endl;
+        }
+    }
+
     class Log {
     public:
-        Log() {}
-        void operator()(string time_, int amount_, string operations_) {
+        Log(){}
+        void operator()(string time_, int amount_, string operations_, string owner_) {
             time = time_;
             amount = amount_;
             operations = operations_;
+            owner = owner_;
         }
         void showLog() {
-            cout << time << " " << amount << " " << operations << endl;
+            cout << time << " " << amount << " " << operations << " " << owner << endl;
         }
     private:
         string time;
         int amount = 0;
         string operations;
+        string owner;
     };
 private:
-    static int count;
     static map<string, int> balances;
+    static map<string, int> accountCount;
     int balance = 0;
     string name;
     string carid;
     string id;
 };
 
-int account::count = 0;
 map<string, int> account::balances;
+map<string, int> account::accountCount;
 account::Log L[100];
 int i = 0;
 
 void account::save(int x) {
     balance += x;
     balances[name] += x;
-    L[i++](getTime(), x, "Save");
+    L[i++](getTime(), x, "Save", name);
 }
 
 void account::takeOut(int x) {
@@ -81,7 +88,7 @@ void account::takeOut(int x) {
     else {
         balance -= x;
         balances[name] -= x;
-        L[i++](getTime(), x, "takeOut");
+        L[i++](getTime(), x, "takeOut", name);
     }
 }
 
@@ -89,12 +96,17 @@ int main()
 {
     account a1("0001", "张三", "123");
     account a2("0002", "张三", "456");
+    account b1("0011", "李四", "1111");
+    account b2("0012", "李四", "2222");
+    account a3("0004", "李四", "133");
     a1.save(1000);
     a2.save(300);
     a2.takeOut(1000);
     a2.takeOut(200);
     a1.save(1000);
     a1.takeOut(110);
+
+    b1.save(1);
 
     a1.showBalance();
     a2.showBalance();
@@ -103,6 +115,7 @@ int main()
         L[x].showLog();
     }
 
-    a1.showPersonal();
+    account::showAllBalance();
+    account::showAccountCount();
     return 0;
 }
