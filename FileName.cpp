@@ -52,6 +52,11 @@ public:
         }
     }
 
+    //获取balance（重载'+'运算符）
+    int getbalance() const{
+        return balance;
+    }
+
     // 嵌套类：日志类
     class Log {
     public:
@@ -107,6 +112,12 @@ void account::takeOut(int x) {
         balances[name] -= x;
         L[i++](getTime(), x, "takeOut", name);
     }
+}
+
+//重载 "+" 运算符
+int operator+(const account& a1, const account& a2) {
+    return  a1.getbalance() + a2.getbalance();
+    
 }
 
 // 主函数
